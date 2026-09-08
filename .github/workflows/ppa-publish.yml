@@ -12,6 +12,11 @@ on:
         required: true
         default: "1"
         type: string
+      dry_run:
+        description: Build and verify signed source artifacts without uploading
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -198,6 +203,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload source package to Launchpad
+        if: ${{ !inputs.dry_run }}
         env:
           DEBIAN_VERSION: ${{ steps.release.outputs.debian_version }}
           PPA_TARGET: ${{ vars.PPA_TARGET }}
