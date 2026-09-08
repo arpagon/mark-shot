@@ -64,12 +64,6 @@ jobs:
             lintian \
             python3
 
-      - name: Install declared build dependencies
-        run: |
-          mk-build-deps --install --remove \
-            --tool 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y' \
-            debian/control
-
       - name: Verify the canonical stable release
         id: release
         env:
@@ -129,7 +123,13 @@ jobs:
             --output "$ORIG_TAR"
           mkdir -p "$SOURCE_ROOT"
           tar -xzf "$ORIG_TAR" --strip-components=1 -C "$SOURCE_ROOT"
-          cp -a debian "$SOURCE_ROOT/"
+          test -f "$SOURCE_ROOT/debian/control" || {
+            echo "The official release does not contain Debian packaging." >&2
+            exit 1
+          }
+          mk-build-deps --install --remove \
+            --tool 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y' \
+            "$SOURCE_ROOT/debian/control"
 
           export DEBFULLNAME='Mark Shot community packaging automation'
           export DEBEMAIL='snemc@qq.com'
