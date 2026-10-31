@@ -148,8 +148,7 @@ jobs:
 
           if [ "$UPSTREAM_TAG" = v0.1.61 ]; then
             # Backport upstream packaging fix 24d15f10e0ba7347cd4107e8c83e7e15dde9f660.
-            install -m 755 .github/packaging/v0.1.61-smoke \
-              "$SOURCE_ROOT/debian/tests/smoke"
+            python3 .github/packaging/prepare-v0.1.61.py "$SOURCE_ROOT"
           fi
 
           export DEBFULLNAME='Mark Shot community packaging automation'
@@ -165,6 +164,8 @@ jobs:
           if [ "$UPSTREAM_TAG" = v0.1.61 ]; then
             dch --changelog "$SOURCE_ROOT/debian/changelog" --append \
               'Backport upstream smoke-test helper path fix (24d15f10e0ba).'
+            dch --changelog "$SOURCE_ROOT/debian/changelog" --append \
+              'Fix helper module modes and omit the duplicate license file.'
           fi
           (cd "$SOURCE_ROOT" && dpkg-buildpackage -S -sa -us -uc)
 

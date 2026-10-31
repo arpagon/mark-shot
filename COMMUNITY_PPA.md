@@ -18,7 +18,7 @@ The publisher uses the `debian/` packaging shipped in the official release tag. 
 
 Version-specific packaging backports:
 
-- `v0.1.61`: `.github/packaging/v0.1.61-smoke` backports upstream commit `24d15f10e0ba7347cd4107e8c83e7e15dde9f660` (the `debian/tests/smoke` change only). This corrects private helper paths after their move to `/usr/libexec/mark-shot`, without modifying application sources. The source changelog records the backport.
+- `v0.1.61`: `.github/packaging/v0.1.61-smoke` backports upstream commit `24d15f10e0ba7347cd4107e8c83e7e15dde9f660` (the `debian/tests/smoke` change only). This corrects private helper paths after their move to `/usr/libexec/mark-shot`, without modifying application sources. The source changelog records the backport. `.github/packaging/prepare-v0.1.61.py` also normalizes private Python module permissions, wraps long Debian changelog bullets, and removes an installed duplicate license file (the required license remains in `debian/copyright`). These packaging-only fixes resolve the release's actionable Lintian warnings.
 
 ## Configuration
 
