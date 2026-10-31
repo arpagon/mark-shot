@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+QT_QPA_PLATFORM=offscreen mark-shot --version
+for desktop in /usr/share/applications/mark-shot.desktop \
+               /usr/share/applications/mark-shot-edit.desktop \
+               /usr/share/applications/net.local.mark-shot.desktop; do
+    desktop-file-validate "$desktop"
+done
+pycache_dir="$(mktemp -d)"
+trap 'rm -rf "$pycache_dir"' EXIT HUP INT TERM
+# 1. 【Debian打包】【脚本检查】从专用安装目录读取辅助脚本，不依赖 PATH
+for helper in /usr/libexec/mark-shot/mark-shot-ocr \
+              /usr/libexec/mark-shot/mark-shot-code-scan \
+              /usr/libexec/mark-shot/mark-shot-translate \
+              /usr/libexec/mark-shot/mark-shot-upload \
+              /usr/libexec/mark-shot/mark-shot-window-detection-niri \
+              /usr/libexec/mark-shot/mark-shot-window-detection-hyprland \
+              /usr/libexec/mark-shot/mark-shot-window-detection-gnome \
+              /usr/libexec/mark-shot/mark-shot-window-detection-kde; do
+    test -x "$helper"
+    PYTHONPYCACHEPREFIX="$pycache_dir" python3 -m py_compile "$helper"
+done
+# 2. 【Debian打包】【模块检查】同时检查 niri 脚本依赖的共享模块
+for module in /usr/libexec/mark-shot/lib/mark_shot_window_detection/__init__.py \
+              /usr/libexec/mark-shot/lib/mark_shot_window_detection/niri_dms.py \
+              /usr/libexec/mark-shot/lib/mark_shot_window_detection/niri_geometry.py; do
+    PYTHONPYCACHEPREFIX="$pycache_dir" python3 -m py_compile "$module"
+done
+test -f /usr/share/gnome-shell/extensions/mark-shot-scroll-helper@snemc.org/metadata.json
+test -f /usr/lib/mark-shot/libmark-shot-layer-shell.so
+test -f /usr/lib/mark-shot/plugins/libmark-shot-translate-openai.so
